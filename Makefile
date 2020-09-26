@@ -38,9 +38,14 @@ test: generate fmt vet
 unit-test: generate fmt vet
 	GO111MODULE=off go list ./... | grep -v controller | xargs go test ${CI_TEST_FLAGS} ${LOCAL_FLAGS}
 
+manager-dataset: generate fmt vet
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go build -o bin/manager cmd/controllers/dataset/main.go
+
+manager-runtime: generate fmt vet
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go build -o bin/manager cmd/controllers/alluxio/main.go
+
 # Build manager binary
-manager: generate fmt vet
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go build -o bin/manager cmd/controller/main.go
+manager: manager-dataset manager-runtime
 
 # Build CSI binary
 csi: generate fmt vet
@@ -54,9 +59,14 @@ debug: generate fmt vet manifests
 debug-csi: generate fmt vet manifests
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  dlv debug --headless --listen ":12346" --log --api-version=2 cmd/csi/main.go -- --nodeid=cn-hongkong.172.31.136.194 --endpoint=unix://var/lib/kubelet/csi-plugins/fuse.csi.fluid.io/csi.sock
 
+run-dataset: generate fmt vet manifests
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go run cmd/controllers/dataset/main.go
+
+run-runtime: generate fmt vet manifests
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go run cmd/controllers/alluxio/main.go
+
 # Run against the configured Kubernetes cluster in ~/.kube/config
-run: generate fmt vet manifests
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=off  go run cmd/controller/main.go
+run: run-dataset run-runtime
 
 # Install CRDs into a cluster
 install: manifests

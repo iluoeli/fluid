@@ -29,18 +29,12 @@ import (
 	// +kubebuilder:scaffold:imports
 
 	datav1alpha1 "github.com/fluid-cloudnative/fluid/api/v1alpha1"
-	alluxioctl "github.com/fluid-cloudnative/fluid/pkg/controllers/v1alpha1/alluxio"
-	dataloadctl "github.com/fluid-cloudnative/fluid/pkg/controllers/v1alpha1/dataload"
 	datasetctl "github.com/fluid-cloudnative/fluid/pkg/controllers/v1alpha1/dataset"
-	"github.com/fluid-cloudnative/fluid/pkg/ddc/alluxio"
-	"github.com/fluid-cloudnative/fluid/pkg/ddc/base"
 )
 
 var (
 	scheme   = runtime.NewScheme()
 	setupLog = ctrl.Log.WithName("setup")
-	// Use compiler to check if the struct implements all the interface
-	_ base.Implement = (*alluxio.AlluxioEngine)(nil)
 )
 
 func init() {
@@ -97,39 +91,6 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Dataset")
 		os.Exit(1)
 	}
-	// if err = (&alluxioctl.RuntimeReconciler{
-	// 	Client: mgr.GetClient(),
-	// 	Log:    ctrl.Log.WithName("alluxioctl").WithName("AlluxioRuntime"),
-	// 	Scheme: mgr.GetScheme(),
-	// }).SetupWithManager(mgr); err != nil {
-	// 	setupLog.Error(err, "unable to create controller", "controller", "AlluxioRuntime")
-	// 	os.Exit(1)
-	// }
-	if err = (alluxioctl.NewRuntimeReconciler(mgr.GetClient(),
-		ctrl.Log.WithName("alluxioctl").WithName("AlluxioRuntime"),
-		mgr.GetScheme(),
-		mgr.GetEventRecorderFor("AlluxioRuntime"),
-	)).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "AlluxioRuntime")
-		os.Exit(1)
-	}
-	if err = (dataloadctl.NewDataLoadReconciler(mgr.GetClient(),
-		ctrl.Log.WithName("alluxioctl").WithName("AlluxioDataLoad"),
-		mgr.GetScheme(),
-		mgr.GetEventRecorderFor("AlluxioDataLoad"),
-	)).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "AlluxioDataLoad")
-		os.Exit(1)
-	}
-	//if err = (&dataload.DataLoadReconciler{
-	//	Client: mgr.GetClient(),
-	//	Log:    ctrl.Log.WithName("alluxioctl").WithName("AlluxioDataLoad"),
-	//	Scheme: mgr.GetScheme(),
-	//}).SetupWithManager(mgr); err != nil {
-	//	setupLog.Error(err, "unable to create controller", "controller", "AlluxioDataLoad")
-	//	os.Exit(1)
-	//}
-	// +kubebuilder:scaffold:builder
 
 	setupLog.Info("starting manager")
 	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
