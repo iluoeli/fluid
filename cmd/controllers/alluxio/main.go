@@ -56,7 +56,7 @@ func main() {
 		development          bool
 	)
 
-	flag.StringVar(&metricsAddr, "metrics-addr", ":8080", "The address the metric endpoint binds to.")
+	flag.StringVar(&metricsAddr, "metrics-addr", ":8081", "The address the metric endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "enable-leader-election", false,
 		"Enable leader election for controller manager. Enabling this will ensure there is only one active controller manager.")
 	flag.BoolVar(&development, "development", true,
@@ -81,7 +81,7 @@ func main() {
 		MetricsBindAddress: metricsAddr,
 		LeaderElection:     enableLeaderElection,
 		// MaxConcurrentReconciles: 5,
-		Port: 9443,
+		Port: 9444,
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
